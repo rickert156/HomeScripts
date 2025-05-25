@@ -8,8 +8,13 @@ def CurrentTime():
 
 def GetUserTime(user_time:str):
     user_hour, user_minutes = user_time.split(":")
-    if  user_minutes == "00":user_minutes = 60
+    if  user_minutes == "00":user_minutes = 0
     return int(user_hour), int(user_minutes)
+
+
+def count_time(hour:int, minutes:int):
+    result = hour * 60 + minutes
+    return result
 
 def Remind(min_time:str=None, max_time:str=None):
     try:
@@ -26,10 +31,13 @@ def Remind(min_time:str=None, max_time:str=None):
 
         command = f'notify-send "{text_title}" "{text_body}"'
 
-        if max_user_hour >= current_hour >= min_user_hour:
-            if max_user_minutes >= current_minutes:
-                print(f"\n {text_title}\n{text_body}")
-                run_command(command=command)
+        min_count = count_time(hour=min_user_hour, minutes=min_user_minutes) 
+        max_count = count_time(hour=max_user_hour, minutes=max_user_minutes)
+        current_count = count_time(hour=current_hour, minutes=current_minutes)
+
+        if min_count <= current_count <= max_count:
+            print(f"\n {text_title}\n{text_body}")
+            run_command(command=command)
     except IndexError:
         print(
                 "Необхдимо передать параметры в Remind!\n"
