@@ -52,12 +52,11 @@ def Remind(min_time:str=None, max_time:str=None):
 def CreateTexts():
     title = "Чувак, время заниматься!"
     body = """\
-
     Почитай новости сначала:
-    https://google.com
-    https://github.com
-
-    После этого можешь начать заниматься по своей литературе.
+    [1] https://www.securitylab.ru/
+    [2] https://www.itsec.ru/news
+    [3] https://securitymedia.org/
+    [4] https://www.anti-malware.ru/news
 
     Удачного дня, чудак!
     """
