@@ -1,5 +1,27 @@
 #!/usr/bin/python3
-import time, subprocess, sys
+import time, subprocess, sys, json, os
+
+def initRemind():
+    current_dir = os.path.realpath(".")
+    config_dir = f"{current_dir}/Script"
+    config_name = "SinRemind.json"
+    full_path_conf = f"{config_dir}/{config_name}"
+    
+
+    if not os.path.exists(config_dir):
+        data = []
+        os.makedirs(config_dir)
+        with open(full_path_conf, 'w') as file:
+            json.dump(data, file, indent=4)
+        print(f"Добавь расписание в конфиг {full_path_conf}")
+        update = (
+                f'notify-send "Нет расписания!"'
+                f' "Заполни файл конфигурации {full_path_conf}"'
+                )
+        run_command(command=update)
+        return False
+    else:
+        return True
 
 def CurrentTime():
     current_time = time.strftime("%H:%M")
@@ -17,6 +39,7 @@ def count_time(hour:int, minutes:int):
     return result
 
 def Remind(min_time:str=None, max_time:str=None):
+    status = initRemind()
     try:
         if min_time == None and max_time == None:
             params = sys.argv
@@ -26,18 +49,22 @@ def Remind(min_time:str=None, max_time:str=None):
         max_user_hour, max_user_minutes = GetUserTime(user_time=max_time)
 
         current_hour, current_minutes = CurrentTime()
-    
-        text_title, text_body = CreateTexts()
+        
+        try:
+            #path_config = os.path.expanduser()
+            text_title, text_body = CreateTexts()
 
-        command = f'notify-send "{text_title}" "{text_body}"'
+            command = f'notify-send "{text_title}" "{text_body}"'
 
-        min_count = count_time(hour=min_user_hour, minutes=min_user_minutes) 
-        max_count = count_time(hour=max_user_hour, minutes=max_user_minutes)
-        current_count = count_time(hour=current_hour, minutes=current_minutes)
+            min_count = count_time(hour=min_user_hour, minutes=min_user_minutes) 
+            max_count = count_time(hour=max_user_hour, minutes=max_user_minutes)
+            current_count = count_time(hour=current_hour, minutes=current_minutes)
 
-        if min_count <= current_count <= max_count:
-            print(f"\n {text_title}\n{text_body}")
-            run_command(command=command)
+            if min_count <= current_count <= max_count:
+                print(f"\n {text_title}\n{text_body}")
+                run_command(command=command)
+        except Exception as err:
+            print(err)
     except IndexError:
         print(
                 "Необхдимо передать параметры в Remind!\n"
