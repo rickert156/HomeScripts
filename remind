@@ -1,17 +1,23 @@
 #!/usr/bin/python3
 import time, subprocess, sys, json, os
 
+current_dir = os.path.realpath(".")
+config_dir = f"{current_dir}/Scripts"
+config_name = "SinRemind.json"
+full_path_conf = f"{config_dir}/{config_name}"
+
 def initRemind():
     def create_config():
-        data = []
+        data = [
+            {
+                "min_time":"",
+                "max_time":"", 
+                "title":"", 
+                "task":""
+                }
+            ]
         with open(full_path_conf, 'w') as file:
             json.dump(data, file, indent=4)
-
-    current_dir = os.path.realpath(".")
-    config_dir = f"{current_dir}/Script"
-    config_name = "SinRemind.json"
-    full_path_conf = f"{config_dir}/{config_name}"
-    
 
     if not os.path.exists(config_dir) or not os.path.exists(full_path_conf):
         os.makedirs(config_dir, exist_ok=True)
@@ -42,60 +48,73 @@ def count_time(hour:int, minutes:int):
     result = hour * 60 + minutes
     return result
 
-def Remind(min_time:str=None, max_time:str=None):
+def Remind(min_time:str=None, max_time:str=None, title:str=None, task:str=None):
     try:
-        if min_time == None and max_time == None:
-            params = sys.argv
-            min_time, max_time = params[1], params[2]
+        params = sys.argv
+        if len(params) == 3:
+            if min_time == None and max_time == None:
+                min_time, max_time = params[1], params[2]
 
-        min_user_hour, min_user_minutes = GetUserTime(user_time=min_time)
-        max_user_hour, max_user_minutes = GetUserTime(user_time=max_time)
+        elif min_time != None and max_time != None: 
+            min_user_hour, min_user_minutes = GetUserTime(user_time=min_time)
+            max_user_hour, max_user_minutes = GetUserTime(user_time=max_time)
 
-        current_hour, current_minutes = CurrentTime()
+            current_hour, current_minutes = CurrentTime()
         
-        try:
-            #path_config = os.path.expanduser()
-            text_title, text_body = CreateTexts()
+            try:
+                if title != None and task != None:
+                    text_title = title
+                    text_body = task
+                if title == None and task == None:
+                    text_title = f"Сверься с расписанием!"
+                    text_body = f"Проверь с {min_time} по {max_time}"
 
-            command = f'notify-send "{text_title}" "{text_body}"'
+                command = f'notify-send "{text_title}" "{text_body}"'
 
-            min_count = count_time(hour=min_user_hour, minutes=min_user_minutes) 
-            max_count = count_time(hour=max_user_hour, minutes=max_user_minutes)
-            current_count = count_time(hour=current_hour, minutes=current_minutes)
+                min_count = count_time(hour=min_user_hour, minutes=min_user_minutes) 
+                max_count = count_time(hour=max_user_hour, minutes=max_user_minutes)
+                current_count = count_time(hour=current_hour, minutes=current_minutes)
 
-            if min_count <= current_count <= max_count:
-                print(f"\n {text_title}\n{text_body}")
-                run_command(command=command)
-        except Exception as err:
-            print(err)
+                if min_count <= current_count <= max_count:
+                    print(f"\n{text_title}\n{text_body}")
+                    run_command(command=command)
+            except Exception as err:
+                print(err)
+        else:
+            print("Проверь *_time в конфигe/параметрах")
     except IndexError:
         print(
                 "Необхдимо передать параметры в Remind!\n"
                 "Смотри https://github.com/rickert156/HomeScripts"
                 )
-    except ValueError:
+    except ValueError as err:
         print(
-                "Необходимо правильно передать параметры!\n"
+                f"{err}\tНеобходимо правильно передать параметры!\n"
                 "Смотри https://github.com/rickert156/HomeScripts"
                 )
 
-def CreateTexts():
-    title = "Чувак, время заниматься!"
-    body = """\
-    Почитай новости сначала:
-    [1] https://www.securitylab.ru/
-    [2] https://www.itsec.ru/news
-    [3] https://securitymedia.org/
-    [4] https://www.anti-malware.ru/news
-
-    Удачного дня, чудак!
-    """
-    return title, body
 
 def run_command(command:str):
     subprocess.run(command, shell=True)
 
+def readRemind(config:str):
+    with open(config, 'r') as file:
+        data = json.load(file)
+
+    return data
+
 if __name__ == '__main__':
     status = initRemind()
     if status == True:
-        Remind()
+        params = sys.argv
+        if '--full-list' in params:
+            """Тут будем читать JSON и сверяться с ним"""
+            full_list = readRemind(config=full_path_conf)
+            for info in full_list:
+                min_time = info["min_time"] 
+                max_time = info["max_time"]
+                title = info["title"]
+                task = info["task"]
+                Remind(min_time=min_time, max_time=max_time, title=title, task=task)
+        else:
+            Remind()
