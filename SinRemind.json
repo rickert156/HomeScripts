@@ -4,6 +4,12 @@
         "max_time": "11:00",
         "title": "Test Title",
         "task": "Test Task"
+    },
+    {
+        "min_time": "11:0",
+        "max_time": "17:00",
+        "title": "Время работать",
+        "task": "Работай, чувак!"
     }
 
 ]

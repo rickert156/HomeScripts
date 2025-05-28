@@ -76,7 +76,7 @@ def Remind(min_time:str=None, max_time:str=None, title:str=None, task:str=None):
                 current_count = count_time(hour=current_hour, minutes=current_minutes)
 
                 if min_count <= current_count <= max_count:
-                    print(f"\n{text_title}\n{text_body}")
+                    print(f"{text_title}\n{text_body}")
                     run_command(command=command)
             except Exception as err:
                 print(err)
