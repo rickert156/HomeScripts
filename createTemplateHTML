@@ -1,0 +1,39 @@
+import sys
+
+def Template():
+    template = """\
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Doc</title>
+</head>
+<body>
+    <h1>Template</h1>
+</body>
+</html>
+    """
+    return template
+
+def templateName():
+    params = sys.argv
+    if len(params) == 1:
+        template_name = 'template.html'
+    if len(params) > 1:
+        template_name = params[1]
+        if '.html' not in template_name and '.php' not in template_name:
+            template_name = f'{template_name}.html'
+
+    return template_name
+
+def CreateTemplate():
+    template_name = templateName()
+    template = Template()
+    with open(template_name, 'w') as file:
+        file.write(f'{template}')
+    print(f'Создан шаблон {template_name}')
+
+if __name__ == '__main__':
+    CreateTemplate()
+
