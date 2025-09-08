@@ -40,3 +40,13 @@ python3 /home/$USER/Scripts/remind --full-list
                                                                                                 
 ]  
 ```
+
+## Генератор HTML
+Актуально для тех случаев, когда используется, к примеру, vim. Что бы не писать вручную разметку html - можно использовать createTemplateHTML, можно добавить alias в конфиг командного интерепретатора для удобства 
+```sh
+echo 'alias createTemplateHTML="python3 ~/Scripts/createTemplateHTML"' >> ~/.config/fish/config.fish
+```
+Из любого места в файловой системе теперь можно использовать генератор. Имя файла можно передать параметром
+```sh
+createTemplateHTML template_2.html
+```
